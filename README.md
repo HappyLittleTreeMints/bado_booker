@@ -9,6 +9,9 @@ It gets up to the Payment Summary Screen, so I'll need someone to close it out d
 Should be quite simple, just copy pasta some of the other lines of code.
 Also, there's the matter of task scheduling. No idea if anyone has some cloud stuff or just keeps their pc on like an absolute degenerate.
 
+Remember to change the email and password at the top of the script.
+
 pip install selenium
 
-Remember to change the email and password at the top of the script.
+To run
+  => book_court()
