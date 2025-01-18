@@ -13,7 +13,6 @@ LEISURE_CENTRE_URL = (
 EMAIL = "your_email"  # Replace with your email
 PASSWORD = "your_password"  # Replace with your password
 LOGIN_BUTTON_XPATH = "//button[span[text()='Login']]"
-BOOKING_XPATH = "//a[contains(text(), 'Make A Booking')]"
 CLUB_XPATH = "//ul[@class='select2-results__options select2-results__options--nested']/li[text()='Valley']"
 PREFERRED_COURTS = [
     "Court 5",
@@ -77,7 +76,9 @@ def book_court():
 
         # Click 'Make A Booking'
         WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, BOOKING_XPATH))
+            EC.element_to_be_clickable(
+                (By.XPATH, "//a[contains(text(), 'Make A Booking')]")
+            )
         ).click()
 
         # Club dropdown
@@ -109,9 +110,10 @@ def book_court():
         days_to_next_sunday = (
             (6 - today.weekday() % 7) if (6 - today.weekday() % 7) else 7
         )
+        # Can do some manual testing by changing next_sunday
         next_sunday = (today + timedelta(days=days_to_next_sunday)).day
         logging.info(f"Next Sunday: {today.strftime('%Y-%m-%d')}")
-        next_sunday = 25
+
         # Zebra datepicker
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, "unique-identifier-2"))
