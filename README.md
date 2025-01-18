@@ -15,3 +15,6 @@ pip install selenium
 
 To run
   => book_court()
+
+Nah don't actually do that. Run with python selenium_bot.py -e yourEmail@evilEmailProvider.com -p yourStupidPassword
+Better practice might be to use env variables but I don't care
