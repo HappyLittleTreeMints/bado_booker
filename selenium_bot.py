@@ -1,5 +1,6 @@
 import time
 import logging
+import argparse
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -10,8 +11,6 @@ from datetime import datetime, timedelta
 LEISURE_CENTRE_URL = (
     "https://antrimandnewtownabbey.legendonlineservices.co.uk/valley/account/login"
 )
-EMAIL = "your_email"  # Replace with your email
-PASSWORD = "your_password"  # Replace with your password
 LOGIN_BUTTON_XPATH = "//button[span[text()='Login']]"
 CLUB_XPATH = "//ul[@class='select2-results__options select2-results__options--nested']/li[text()='Valley']"
 PREFERRED_COURTS = [
@@ -30,6 +29,7 @@ def setup_driver():
     options = webdriver.ChromeOptions()
     # options.add_argument("--headless")  # Run in headless mode
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    options.add_argument("--incognito")  # Add incognito mode
     driver = webdriver.Chrome(options=options)  # Update path to chromedriver if needed
     logging.info("WebDriver initialized successfully.")
     return driver
@@ -52,7 +52,7 @@ def _select_court(driver):
 
 
 # Booking function
-def book_court():
+def book_court(email, password):
     driver = setup_driver()
     try:
         driver.get(LEISURE_CENTRE_URL)
@@ -69,8 +69,8 @@ def book_court():
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.XPATH, LOGIN_BUTTON_XPATH))
         )
-        driver.find_element(By.ID, "account-login-email").send_keys(EMAIL)
-        driver.find_element(By.ID, "account-login-password").send_keys(PASSWORD)
+        driver.find_element(By.ID, "account-login-email").send_keys(email)
+        driver.find_element(By.ID, "account-login-password").send_keys(password)
         driver.find_element(By.XPATH, LOGIN_BUTTON_XPATH).click()
         logging.info("Attempting Login")
 
@@ -154,7 +154,16 @@ def book_court():
             EC.element_to_be_clickable((By.ID, "universal-basket-continue-button"))
         ).click()
 
-        # TODO Payment Summary -> Payment -> Confirmation
+        # Accept terms and conditions
+        WebDriverWait(driver, 20).until(
+            EC.element_to_be_clickable((By.ID, "InputCheckbox-0"))
+        ).click()
+
+        # Click continue again
+        WebDriverWait(driver, 10).until(
+            EC.element_to_be_clickable((By.ID, "universal-basket-continue-button"))
+        ).click()
+
         time.sleep(10)
         logging.info("Booking complete")
     except Exception as e:
@@ -162,3 +171,18 @@ def book_court():
     finally:
         driver.quit()
         logging.info("Webdriver closed")
+
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-e', '--email', required=True, help='Login email address')
+    parser.add_argument('-p', '--password', required=True, help='Login password')
+    return parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_arguments()
+    try:
+        book_court(args.email, args.password)
+    except KeyboardInterrupt:
+        logging.info("Script terminated by user")
+    except Exception as e:
+        logging.error(f"Unexpected error occurred: {e}")
