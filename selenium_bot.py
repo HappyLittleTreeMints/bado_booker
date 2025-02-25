@@ -114,6 +114,10 @@ def book_court(email, password):
         next_sunday = (today + timedelta(days=days_to_next_sunday)).day
         logging.info(f"Next Sunday: {today.strftime('%Y-%m-%d')}")
 
+        is_next_sunday_in_next_month = (
+            today + timedelta(days=days_to_next_sunday)
+        ).month != today.month
+
         # Zebra datepicker
         WebDriverWait(driver, 10).until(
             EC.element_to_be_clickable((By.ID, "unique-identifier-2"))
@@ -122,6 +126,11 @@ def book_court(email, password):
         WebDriverWait(driver, 10).until(
             EC.visibility_of_element_located((By.CLASS_NAME, "Zebra_DatePicker"))
         )
+        if is_next_sunday_in_next_month:
+            driver.find_element(
+                By.XPATH,
+                "//div[@class='Zebra_DatePicker']/table[@class='dp_header dp_actions']//td[@class='dp_next']",
+            ).click()
 
         # Select correct date
         driver.find_element(
@@ -172,11 +181,13 @@ def book_court(email, password):
         driver.quit()
         logging.info("Webdriver closed")
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--email', required=True, help='Login email address')
-    parser.add_argument('-p', '--password', required=True, help='Login password')
+    parser.add_argument("-e", "--email", required=True, help="Login email address")
+    parser.add_argument("-p", "--password", required=True, help="Login password")
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     args = parse_arguments()
